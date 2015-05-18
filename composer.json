@@ -1,0 +1,27 @@
+{
+    "name": "backbee/validator",
+    "description": "Validator component for BackBee CMS",
+    "type": "library",
+    "license": "GPL-3.0+",
+    "authors": [
+        {
+            "name": "Florian Kroockmann",
+            "email": "florian.kroockmann@lp-digital.fr"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "respect/validation": "0.7.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "BackBee\\Validator\\": ""
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "4.4.2",
+        "phpunit/dbunit": "1.3.1",
+        "mikey179/vfsStream": "1.4.0",
+        "fzaninotto/faker": "1.4.0"
+    }
+}
