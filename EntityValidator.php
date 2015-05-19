@@ -26,10 +26,10 @@ namespace BackBee\Validator;
 use Doctrine\ORM\EntityManager;
 
 /**
- * Entity's validator.
+ * Entity's validator
  *
  * @category    BackBee
- *
+ * @package     BackBee\Validator
  * @copyright   Lp digital system
  * @author      f.kroockmann <florian.kroockmann@lp-digital.fr>
  */
@@ -43,8 +43,7 @@ class EntityValidator extends AbstractValidator
     protected $em;
 
     /**
-     * Form validator constructor.
-     *
+     * Form validator constructor
      * @param \Doctrine\ORM\EntityManager $em
      */
     public function __construct(EntityManager $em)
@@ -53,14 +52,13 @@ class EntityValidator extends AbstractValidator
     }
 
     /**
-     * Validate all datas with config.
+     * Validate all datas with config
      *
-     * @param object $entity
-     * @param array  $datas
-     * @param array  $errors
-     * @param array  $config
-     * @param string $prefix
-     *
+     * @param  object $entity
+     * @param  array  $datas
+     * @param  array  $errors
+     * @param  array  $config
+     * @param  string $prefix
      * @return object
      */
     public function validate($entity, array $datas = array(), array &$errors = array(), array $config = array(), $prefix = '')
@@ -76,22 +74,34 @@ class EntityValidator extends AbstractValidator
             if (true === isset($config[$key])) {
                 $cConfig = $config[$key];
 
+                if ($set_empty = isset($cConfig[self::CONFIG_PARAMETER_SET_EMPTY])) {
+                    $set_empty =  true === $cConfig[self::CONFIG_PARAMETER_SET_EMPTY];
+                }
+
                 $do_treatment = true;
-                if (true === isset($cConfig[self::CONFIG_PARAMETER_MANDATORY]) &&
-                    false === $cConfig[self::CONFIG_PARAMETER_MANDATORY] &&
-                    true === empty($data)) {
-                    $do_treatment = false;
+                if (isset($cConfig[self::CONFIG_PARAMETER_MANDATORY])) {
+                    if (false === $cConfig[self::CONFIG_PARAMETER_MANDATORY] && empty($data) && !$set_empty) {
+                        $do_treatment = false;
+                    }
                 }
 
                 if (true === $do_treatment) {
                     if (true === isset($cConfig[self::CONFIG_PARAMETER_VALIDATOR])) {
-                        foreach ($cConfig[self::CONFIG_PARAMETER_VALIDATOR] as $validator => $validator_conf) {
-                            if (self::UNIQUE_VALIDATOR === $validator) {
-                                $this->doUniqueValidator($entity, $errors, $key, $data, $validator_conf);
-                            } elseif (self::PASSWORD_VALIDATOR === $validator) {
-                                $this->doPasswordValidator($errors, $key, $data, $datas, $validator_conf);
-                            } else {
-                                $this->doGeneralValidator($data, $key, $validator, $validator_conf, $errors);
+
+                        $do_treatment = true;
+                        if (true === empty($data) && true === $set_empty) {
+                            $do_treatment = false;
+                        }
+
+                        if (true === $do_treatment) {
+                            foreach ($cConfig[self::CONFIG_PARAMETER_VALIDATOR] as $validator => $validator_conf) {
+                                if (self::UNIQUE_VALIDATOR === $validator) {
+                                    $this->doUniqueValidator($entity, $errors, $key, $data, $validator_conf);
+                                } elseif (self::PASSWORD_VALIDATOR === $validator) {
+                                    $this->doPasswordValidator($errors, $key, $data, $datas, $validator_conf);
+                                } else {
+                                    $this->doGeneralValidator($data, $key, $validator, $validator_conf, $errors);
+                                }
                             }
                         }
                     }
@@ -99,17 +109,18 @@ class EntityValidator extends AbstractValidator
                     if (false === empty($prefix)) {
                         $key = str_replace($prefix, '', $key);
                     }
+
                     if (true === method_exists($entity, 'set'.ucfirst($key))) {
                         $do_set = true;
-                        if (true === isset($cConfig[self::CONFIG_PARAMETER_SET_EMPTY])) {
-                            if (false === $cConfig[self::CONFIG_PARAMETER_SET_EMPTY] && true === empty($data)) {
-                                $do_set = false;
-                            }
+                        if (false === $set_empty && true === empty($data)) {
+                            $do_set = false;
                         }
+
                         if (true === $do_set) {
                             if (true === isset($cConfig[self::CONFIG_PARAMETER_ENTITY])) {
                                 $data = $this->em->find($cConfig[self::CONFIG_PARAMETER_ENTITY], $data);
                             }
+
                             $entity->{'set'.ucfirst($key)}($data);
                         }
                     }
@@ -121,7 +132,7 @@ class EntityValidator extends AbstractValidator
     }
 
     /**
-     * Valid if this field is unique.
+     * Valid if this field is unique
      *
      * @param array  $errors
      * @param string $key
@@ -151,7 +162,7 @@ class EntityValidator extends AbstractValidator
     }
 
     /**
-     * Valid a password with confirmation.
+     * Valid a password with confirmation
      *
      * @param array  $errors
      * @param string $key
@@ -167,11 +178,10 @@ class EntityValidator extends AbstractValidator
     }
 
     /**
-     * Verify if datas is valid.
+     * Verify if datas is valid
      *
-     * @param object $entity
-     * @param array  $config
-     *
+     * @param  object  $entity
+     * @param  array   $config
      * @return boolean
      */
     public function isValid($entity, $config)
@@ -188,8 +198,8 @@ class EntityValidator extends AbstractValidator
     }
 
     /**
-     * @param object $entity
      *
+     * @param  object           $entity
      * @return \ReflectionClass
      */
     public function getReflectionClass($entity)
@@ -202,10 +212,9 @@ class EntityValidator extends AbstractValidator
     }
 
     /**
-     * Get id of object.
+     * Get id of object
      *
-     * @param object $entity
-     *
+     * @param  object $entity
      * @return array
      */
     public function getIdProperties($entity)
@@ -213,7 +222,7 @@ class EntityValidator extends AbstractValidator
         $ids = array();
         $reflection_class = $this->getReflectionClass($entity);
         foreach ($reflection_class->getProperties() as $property) {
-            if (false !== strpos($property->getDocComment(), '@ORM\Id')) {
+            if (false !== strpos($property->getDocComment(), '@Id')) {
                 $ids[] = $property->getName();
             }
         }

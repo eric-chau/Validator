@@ -26,12 +26,13 @@ namespace BackBee\Validator\Tests;
 use BackBee\Tests\Mock\MockBBApplication;
 use BackBee\Validator\Tests\Mock\MockEntity;
 use BackBee\Validator\Tests\Mock\MockEntity2;
+use BackBee\Validator\EntityValidator;
 
 /**
- * Entity's validator.
+ * Entity's validator
  *
  * @category    BackBee
- *
+ * @package     BackBee\Validator\Tests
  * @copyright   Lp digital system
  * @author      f.kroockmann <florian.kroockmann@lp-digital.fr>
  */
@@ -123,7 +124,7 @@ class EntityValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Sets up the fixture.
+     * Sets up the fixture
      */
     public function setUp()
     {
@@ -132,7 +133,7 @@ class EntityValidatorTest extends \PHPUnit_Framework_TestCase
         //Test data
         $this->generateData();
 
-        $this->entity_validator = new \BackBee\Validator\EntityValidator($this->em);
+        $this->entity_validator = new EntityValidator($this->em);
     }
 
     private function generateData()

@@ -11,7 +11,8 @@
     ],
     "require": {
         "php": ">=5.4.0",
-        "respect/validation": "0.7.3"
+        "respect/validation": "0.7.3",
+        "backbee/backbee": "1.0.*@dev"
     },
     "autoload": {
         "psr-4": {

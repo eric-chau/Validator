@@ -24,10 +24,10 @@
 namespace BackBee\Validator;
 
 /**
- * ArrayValidator's validator.
+ * ArrayValidator's validator
  *
  * @category    BackBee
- *
+ * @package     BackBee\Validator
  * @copyright   Lp digital system
  * @author      f.kroockmann <florian.kroockmann@lp-digital.fr>
  */
@@ -36,40 +36,51 @@ class ArrayValidator extends AbstractValidator
     const DELIMITER = '__';
 
     /**
-     * Validate all datas with config.
+     * Validate all datas with config
      *
-     * @param array  $array
-     * @param array  $datas
-     * @param array  $errors
-     * @param array  $form_config
-     * @param string $prefix
-     *
+     * @param  array  $array
+     * @param  array  $datas
+     * @param  array  $errors
+     * @param  array  $form_config
+     * @param  string $prefix
      * @return array
      */
     public function validate($array, array $datas = array(), array &$errors = array(), array $form_config = array(), $prefix = '')
     {
         foreach ($datas as $key => $data) {
             if (null !== $cConfig = $this->getData($key, $form_config)) {
+
+                if ($set_empty = isset($cConfig[self::CONFIG_PARAMETER_SET_EMPTY])) {
+                    $set_empty =  true === $cConfig[self::CONFIG_PARAMETER_SET_EMPTY];
+                }
+
                 $do_treatment = true;
-                if (true === isset($cConfig[self::CONFIG_PARAMETER_MANDATORY]) &&
-                    false === $cConfig[self::CONFIG_PARAMETER_MANDATORY] &&
-                    true === empty($data)) {
-                    $do_treatment = false;
+                if (isset($cConfig[self::CONFIG_PARAMETER_MANDATORY])) {
+                    if (false === $cConfig[self::CONFIG_PARAMETER_MANDATORY] && empty($data) && !$set_empty) {
+                        $do_treatment = false;
+                    }
                 }
 
                 if (true === $do_treatment) {
                     if (true === isset($cConfig[self::CONFIG_PARAMETER_VALIDATOR])) {
-                        foreach ($cConfig[self::CONFIG_PARAMETER_VALIDATOR] as $validator => $validator_conf) {
-                            $this->doGeneralValidator($data, $key, $validator, $validator_conf, $errors);
+
+                        $do_treatment = true;
+                        if (true === empty($data) && true === $set_empty) {
+                            $do_treatment = false;
+                        }
+
+                        if (true === $do_treatment) {
+                            foreach ($cConfig[self::CONFIG_PARAMETER_VALIDATOR] as $validator => $validator_conf) {
+                                $this->doGeneralValidator($data, $key, $validator, $validator_conf, $errors);
+                            }
                         }
                     }
 
                     $do_set = true;
-                    if (true === isset($cConfig[self::CONFIG_PARAMETER_SET_EMPTY])) {
-                        if (false === $cConfig[self::CONFIG_PARAMETER_SET_EMPTY] && true === empty($data)) {
-                            $do_set = false;
-                        }
+                    if (false === $set_empty && true === empty($data)) {
+                        $do_set = false;
                     }
+
                     if (true === $do_set) {
                         $this->setData($key, $data, $array);
                     }
@@ -81,11 +92,10 @@ class ArrayValidator extends AbstractValidator
     }
 
     /**
-     * Get data to array.
+     * Get data to array
      *
-     * @param string $key
-     * @param array  $array
-     *
+     * @param  string      $key
+     * @param  array       $array
      * @return null|string
      */
     public function getData($key, $array)
@@ -106,7 +116,7 @@ class ArrayValidator extends AbstractValidator
     }
 
     /**
-     * Set data to array.
+     * Set data to array
      *
      * @param string $key
      * @param string $value
